@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Your Pets
+{% endblock %}
+
+{% block main %}
+    <h1>Your Pets</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Pet</th>
+                <th>Breakfast</th>
+                <th>Lunch</th>
+                <th>Dinner</th>
+            </tr>
+        </thead>
+        <tbody>
+                {% for pet in pets %}
+                <tr>
+                    <td>
+                        {{ pet["petname"] }}
+                    </td>
+                    <td>
+                        <form action = "" method = "post">
+                            <button class="btn-primary" type="submit" name="meal" value="breakfast">{{ pet["breakfast"] }}</button>
+                            <input type="hidden" name="pet" value= "{{ pet['petname'] }}">
+                        </form>
+                        </td>
+                    <td>
+                        <form action = "" method = "post">
+                            <button class="btn-primary" type="submit" name="meal" value="lunch">{{ pet["lunch"] }}</button>
+                            <input type="hidden" name="pet" value= "{{ pet['petname'] }}">
+                        </form>
+                    </td>
+                    <td>
+                        <form action = "" method = "post">
+                            <button class="btn-primary" type="submit" name="meal" value ="dinner">{{ pet["dinner"] }}</button>
+                            <input type="hidden" name="pet" value= "{{ pet['petname'] }}">
+                        </form>
+                    </td>
+                    <td>
+                        <form action = "" method = "post">
+                            <button class="btn-primary" type="submit" name="delete" value ="{{ pet['id'] }}">Remove Pet</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

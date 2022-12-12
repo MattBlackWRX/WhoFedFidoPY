@@ -1,0 +1,9 @@
+cs50
+Flask
+Flask-Session
+requests
+sqlite3
+Python 3
+google-api-python-client 
+google-auth-httplib2 
+google-auth-oauthlib
