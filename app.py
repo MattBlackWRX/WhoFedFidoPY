@@ -50,7 +50,7 @@ def index():
     if request.method == "GET":
         date = db.execute("SELECT date_time FROM users WHERE id = ?", session["user_id"])
         date = date[0]["date_time"]
-        date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S').date()
         new_date = datetime.date.today()
         if new_date > date:
             db.execute("UPDATE pets SET breakfast = 'hungry', lunch = 'hungry', dinner = 'hungry' WHERE user_id = ?", session["user_id"])
@@ -161,11 +161,11 @@ def register():
         elif len(rows) == 0:
             hash = generate_password_hash(request.form.get("password"))
             username = request.form.get("username")
-            UTC = pytz.utc
-            date = datetime.datetime.now(UTC).date()
+            utc = pytz.utc
+            date_time = datetime.datetime.now(utc)
             email = request.form.get("email")
             timezone = request.form.get("timezone")
-            db.execute("INSERT INTO users (username, hash, date_time, email, timezone) VALUES(?, ?, ?, ?, ?)", username, hash, date, email, timezone)
+            db.execute("INSERT INTO users (username, hash, date_time, email, timezone) VALUES(?, ?, ?, ?, ?)", username, hash, date_time, email, timezone)
             return redirect("/")
     else:
         timezones=[]
