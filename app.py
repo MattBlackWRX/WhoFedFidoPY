@@ -13,6 +13,8 @@ from email.message import EmailMessage
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 # Configure application
@@ -48,13 +50,23 @@ def after_request(response):
 def index():
     """Shows pets owned by user and food schedule"""
     if request.method == "GET":
-        date = db.execute("SELECT date_time FROM users WHERE id = ?", session["user_id"])
-        date = date[0]["date_time"]
-        date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S').date()
-        new_date = datetime.date.today()
-        if new_date > date:
+        # Pull last time stamp from database
+        date_time = db.execute("SELECT date_time FROM users WHERE id = ?", session["user_id"])
+        date_time = date_time[0]["date_time"]
+        # Convert text to date time object
+        date_time = datetime.datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
+        # Pull in Timezone from database
+        tz = db.execute("SELECT timezone FROM users WHERE id = ?", session["user_id"])
+        tz = pytz.timezone(tz[0]["timezone"])
+        date_time_tz = pytz.utc.localize(date_time, is_dst=None).astimezone(tz)
+        # Generate new timestamp in UTC and convert to user timezone
+        utc = pytz.utc
+        new_date_time_utc = datetime.datetime.now(utc)
+        new_date_time_tz = new_date_time_utc.astimezone(tz)
+        # Compare new date to old date, if new day, reset food schedule in datebase
+        if new_date_time_tz.date() > date_time_tz.date():
             db.execute("UPDATE pets SET breakfast = 'hungry', lunch = 'hungry', dinner = 'hungry' WHERE user_id = ?", session["user_id"])
-            db.execute("UPDATE users SET date_time = ? WHERE id = ?", new_date, session["user_id"])
+            db.execute("UPDATE users SET date_time = ? WHERE id = ?", new_date_time_utc, session["user_id"])
         rows = db.execute("SELECT petname, id, breakfast, lunch, dinner FROM pets WHERE user_id = ?", session["user_id"])
         pets = []
         for row in rows:
@@ -69,7 +81,8 @@ def index():
             meal = request.form.get("meal")
             pet = request.form.get("pet")
             db.execute("UPDATE pets SET ? = 'fed' WHERE user_id = ? AND petname = ?", meal, session["user_id"], pet)
-            email = db.execute("SELECT email FROM users WHERE user_id = ?", session["user_id"])
+            email = db.execute("SELECT email FROM users WHERE id = ?", session["user_id"])
+            email = email[0]["email"]
             # Update with Company Email as sender
             send_email('mclarenmanmatt@gmail.com', email, pet, meal)
             return redirect("/")
@@ -185,8 +198,23 @@ def send_email(sender, recipient, pet, meal):
     for guides on implementing OAuth2 for the application.
     """
     SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-
+    
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is created automatically when the authorization flow completes for the first time.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    
     try:
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
