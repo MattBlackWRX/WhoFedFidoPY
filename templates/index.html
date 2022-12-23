@@ -48,4 +48,11 @@
                 {% endfor %}
         </tbody>
     </table>
+    <script>
+        $('table').each(function() {
+            if($(this).find('tr').children("td").length < 1) {
+            $(this).hide();
+            }
+        });
+    </script>
 {% endblock %}
