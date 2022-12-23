@@ -90,7 +90,6 @@ def index():
                 send_email('mclarenmanmatt@gmail.com', email, pet, meal)
                 return redirect("/")
             else:
-                print("already fed")
                 return redirect("/")
 
 
