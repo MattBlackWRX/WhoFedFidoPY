@@ -80,12 +80,18 @@ def index():
         else:
             meal = request.form.get("meal")
             pet = request.form.get("pet")
-            db.execute("UPDATE pets SET ? = 'fed' WHERE user_id = ? AND petname = ?", meal, session["user_id"], pet)
-            email = db.execute("SELECT email FROM users WHERE id = ?", session["user_id"])
-            email = email[0]["email"]
-            # Update with Company Email as sender
-            send_email('mclarenmanmatt@gmail.com', email, pet, meal)
-            return redirect("/")
+            meal_status = db.execute("SELECT * from pets WHERE user_id = ? AND petname = ?", session["user_id"], pet)
+            meal_status = meal_status[0][meal]
+            if meal_status == "hungry":
+                db.execute("UPDATE pets SET ? = 'fed' WHERE user_id = ? AND petname = ?", meal, session["user_id"], pet)
+                email = db.execute("SELECT email FROM users WHERE id = ?", session["user_id"])
+                email = email[0]["email"]
+                # Update with Company Email as sender
+                send_email('mclarenmanmatt@gmail.com', email, pet, meal)
+                return redirect("/")
+            else:
+                print("already fed")
+                return redirect("/")
 
 
 @app.route("/login", methods=["GET", "POST"])
