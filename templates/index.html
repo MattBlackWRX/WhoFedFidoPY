@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Your Pets</h1>
+    <h1 id="header">Your Pets</h1>
     <table>
         <thead>
             <tr>
@@ -48,11 +48,16 @@
                 {% endfor %}
         </tbody>
     </table>
-    <img src="/static/doggo.jpg" alt="Doggo">
+    <img src="/static/doggo.jpg" alt="Doggo" id="Doggo">
     <script>
         $('table').each(function() {
             if($(this).find('tr').children("td").length < 1) {
-            $(this).hide();
+                $(this).hide();
+                $('#Doggo').show();
+                $('#header').html("Go to Add a Pet to get started!")
+            }
+            else {
+                $('#Doggo').hide();
             }
         });
     </script>
