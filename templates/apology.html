@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block main %}
-    <!-- https://memegen.link/ -->
-    <img alt="{{ top }}" class="border img-fluid" src="http://memegen.link/custom/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg?alt=https://i.imgur.com/CsCgN7Ll.png&width=400" title="{{ top }}">
+    <h1>{{ message }}</h1>
+    <h2>HTTP Error {{ code }}</h2>
+    <img alt="{{ code }}" src="/static/doggo.jpg" title="{{ code }}">
 {% endblock %}
