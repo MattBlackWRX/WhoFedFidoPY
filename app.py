@@ -94,18 +94,18 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 400)
+            return apology("Must provide a username", 400)
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 400)
+            return apology("Must provide a password", 400)
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 400)
+            return apology("Invalid username and/or password", 400)
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
@@ -134,7 +134,7 @@ def logout():
 def addPet():
     if request.method == "POST":
         if not request.form.get("pet"):
-            return apology("must provide Pet Name", 400)
+            return apology("Must provide a Pet Name", 400)
         pet = request.form.get("pet")
         db.execute("INSERT INTO pets (petname, user_id) VALUES (?, ?)", pet, session["user_id"])
         return redirect("/")
@@ -149,20 +149,20 @@ def register():
 
         # Check if Username Submitted
         if not request.form.get("username"):
-            return apology("must provide username", 400)
+            return apology("Must provide a username", 400)
 
         # Check if Password Submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 400)
+            return apology("Must provide a password", 400)
 
         # Check to see if password and confirmation match
         elif request.form.get("password") != request.form.get("confirmation"):
-            return apology("passwords do not match", 400)
+            return apology("Passwords do not match", 400)
 
         # Check to see if username is taken
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
         if len(rows) > 0:
-            return apology("this username already exists", 400)
+            return apology("This username already exists", 400)
 
         # Store username and hash in the table and redirect to homepage
         elif len(rows) == 0:
