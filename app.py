@@ -151,7 +151,7 @@ def register():
         if not request.form.get("username"):
             return apology("Must provide a username", 400)
 
-        # Check in Email Submitted
+        # Check if Email Submitted
         if not request.form.get("email"):
             return apology("Must provide an email", 400)
 
