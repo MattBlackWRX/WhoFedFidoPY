@@ -168,6 +168,11 @@ def register():
         if len(rows) > 0:
             return apology("This username already exists", 400)
 
+        # Check to see if email is taken
+        rows = db.execute("SELECT * FROM users WHERE email = ?", request.form.get("email"))
+        if len(rows) > 0:
+            return apology("This email is already registered")
+        
         # Store username and hash in the table and redirect to homepage
         elif len(rows) == 0:
             hash = generate_password_hash(request.form.get("password"))
