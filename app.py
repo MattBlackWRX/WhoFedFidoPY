@@ -68,15 +68,16 @@ def index():
             return redirect("/")
         else:
             meal = request.form.get("meal")
-            pet = request.form.get("pet")
-            meal_status = db.execute("SELECT * from pets WHERE petname = ? AND (user_id = ? OR user_two_id = ?)", pet, session["user_id"], session["user_id"])
-            meal_status = meal_status[0][meal]
+            pet_id = request.form.get("pet_id")
+            pet = db.execute("SELECT * from pets WHERE id = ?", pet_id)
+            meal_status = pet[0][meal]
+            pet_name = pet[0]['petname']
             if meal_status == "hungry":
-                db.execute("UPDATE pets SET ? = 'fed' WHERE petname = ? AND (user_id = ? OR user_two_id = ?)", meal, pet, session["user_id"], session["user_id"])
+                db.execute("UPDATE pets SET ? = 'fed' WHERE id = ?", meal, pet_id)
                 email = db.execute("SELECT email FROM users WHERE id = ?", session["user_id"])
                 email = email[0]["email"]
                 # Update with Company Email as sender
-                send_email('mclarenmanmatt@gmail.com', email, pet, meal)
+                send_email('mclarenmanmatt@gmail.com', email, pet_name, meal)
                 return redirect("/")
             else:
                 return redirect("/")
