@@ -194,6 +194,10 @@ def register():
         if len(rows) > 0:
             return apology("This email is already registered")
         
+        # Check to see if timezone was selected
+        if request.form.get("timezone") == "Select Timezone":
+            return apology("Please Select a Timezone")
+        
         # Store username and hash in the table and redirect to homepage
         elif len(rows) == 0:
             hash = generate_password_hash(request.form.get("password"))
