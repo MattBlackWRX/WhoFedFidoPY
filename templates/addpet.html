@@ -17,4 +17,31 @@
         </div>
         <button class="btn btn-primary" type="submit">Search for Registered Pet by Email</button>
     </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Pet Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pet in pets %}
+            <tr>
+                <td>{{ pet["petname"] }}</td>
+                <td>
+                    <form action = "/addpet" method = "post">
+                        <button class="btn-primary" type="submit" id= "pet_id" name="pet_id" value="{{ pet['id'] }}">Add Pet</button>
+                        <input type="hidden" id="pet_id" name="pet_id" value= "{{ pet['id'] }}">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        $('table').each(function() {
+            if($(this).find('tr').children("td").length < 1) {
+                $(this).hide();
+            }
+        })
+    </script>
 {% endblock %}

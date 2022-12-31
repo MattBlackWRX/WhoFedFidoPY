@@ -54,9 +54,9 @@ def index():
         new_date_time_tz = new_date_time_utc.astimezone(tz)
         # Compare new date to old date, if new day, reset food schedule in datebase
         if new_date_time_tz.date() > date_time_tz.date():
-            db.execute("UPDATE pets SET breakfast = 'hungry', lunch = 'hungry', dinner = 'hungry' WHERE user_id = ?", session["user_id"])
+            db.execute("UPDATE pets SET breakfast = 'hungry', lunch = 'hungry', dinner = 'hungry' WHERE user_id = ? OR user_two_id = ?", session["user_id"], session["user_id"])
             db.execute("UPDATE users SET date_time = ? WHERE id = ?", new_date_time_utc, session["user_id"])
-        rows = db.execute("SELECT petname, id, breakfast, lunch, dinner FROM pets WHERE user_id = ?", session["user_id"])
+        rows = db.execute("SELECT petname, id, breakfast, lunch, dinner FROM pets WHERE user_id = ? OR  user_two_id = ?", session["user_id"], session["user_id"])
         pets = []
         for row in rows:
             pets.append(row)
@@ -69,10 +69,10 @@ def index():
         else:
             meal = request.form.get("meal")
             pet = request.form.get("pet")
-            meal_status = db.execute("SELECT * from pets WHERE user_id = ? AND petname = ?", session["user_id"], pet)
+            meal_status = db.execute("SELECT * from pets WHERE petname = ? AND (user_id = ? OR user_two_id = ?)", pet, session["user_id"], session["user_id"])
             meal_status = meal_status[0][meal]
             if meal_status == "hungry":
-                db.execute("UPDATE pets SET ? = 'fed' WHERE user_id = ? AND petname = ?", meal, session["user_id"], pet)
+                db.execute("UPDATE pets SET ? = 'fed' WHERE petname = ? AND (user_id = ? OR user_two_id = ?)", meal, pet, session["user_id"], session["user_id"])
                 email = db.execute("SELECT email FROM users WHERE id = ?", session["user_id"])
                 email = email[0]["email"]
                 # Update with Company Email as sender
@@ -133,12 +133,27 @@ def logout():
 @login_required
 def addPet():
     if request.method == "POST":
+        # Email form to search for an already registered pet, if not searching continue
         if not request.form.get("email"):
-            if not request.form.get("pet"):
-                return apology("Must provide a Pet Name", 400)
-            pet = request.form.get("pet")
-            db.execute("INSERT INTO pets (petname, user_id) VALUES (?, ?)", pet, session["user_id"])
-            return redirect("/")
+            # Pet ID form is to add the user to the pet as a second owner, if not continue
+            if not request.form.get("pet_id"):
+                # If no information is given, return apology
+                if not request.form.get("pet"):
+                    return apology("Must provide a Pet Name or Email", 400)
+                pet = request.form.get("pet")
+                db.execute("INSERT INTO pets (petname, user_id) VALUES (?, ?)", pet, session["user_id"])
+                return redirect("/")
+            # Add user as a second owner
+            pet_id = request.form.get("pet_id")
+            db.execute("UPDATE pets SET user_two_id = ? WHERE id = ?", session["user_id"], pet_id)
+        # Seach the database for pets registered to the email given and render template
+        email = request.form.get("email")
+        rows = db.execute("SELECT petname, id FROM pets WHERE user_id = (SELECT id FROM users WHERE email = ?)", email)
+        pets = []
+        for row in rows:
+            pets.append(row)
+        return render_template("addpet.html", pets=pets)
+
     else:
         return render_template("addpet.html")
 
