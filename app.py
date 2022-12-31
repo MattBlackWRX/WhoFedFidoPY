@@ -74,10 +74,11 @@ def index():
             pet_name = pet[0]['petname']
             if meal_status == "hungry":
                 db.execute("UPDATE pets SET ? = 'fed' WHERE id = ?", meal, pet_id)
-                email = db.execute("SELECT email FROM users WHERE id = ?", session["user_id"])
-                email = email[0]["email"]
-                # Update with Company Email as sender
-                send_email('mclarenmanmatt@gmail.com', email, pet_name, meal)
+                email_list = db.execute("SELECT email FROM users WHERE id = (SELECT user_id FROM pets WHERE id = ?) OR (SELECT user_two_id FROM pets WHERE id = ?)", pet_id, pet_id)
+                for n in range(len(email_list)):
+                    print(email_list[n]["email"])
+                    # Update with Company Email as sender
+                    #send_email('mclarenmanmatt@gmail.com', email, pet_name, meal)
                 return redirect("/")
             else:
                 return redirect("/")
