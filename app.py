@@ -23,6 +23,9 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///fido.db")
 
+db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, hash TEXT NOT NULL, date_time TEXT, email TEXT, timezone TEXT)")
+db.execute("CREATE UNIQUE INDEX IF NOT EXISTS username ON users (username)")
+db.execute("CREATE TABLE IF NOT EXISTS pets (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, petname TEXT NOT NULL, breakfast TEXT NOT NULL DEFAULT hungry, lunch TEXT NOT NULL DEFAULT hungry, dinner TEXT NOT NULL DEFAULT hungry, user_id INTEGER, user_two_id INTEGER, FOREIGN KEY(user_id) REFERENCES users(id), FOREIGN KEY (user_two_id) REFERENCES users(id))")
 
 
 @app.after_request
@@ -76,9 +79,10 @@ def index():
                 db.execute("UPDATE pets SET ? = 'fed' WHERE id = ?", meal, pet_id)
                 email_list = db.execute("SELECT email FROM users WHERE id = (SELECT user_id FROM pets WHERE id = ?) OR (SELECT user_two_id FROM pets WHERE id = ?)", pet_id, pet_id)
                 for n in range(len(email_list)):
-                    print(email_list[n]["email"])
-                    # Update with Company Email as sender
-                    #send_email('mclarenmanmatt@gmail.com', email, pet_name, meal)
+                    email = email_list[n]["email"]
+                    # Update with appropriate email as sender
+                    sender_email = "whofedfido@gmail.com"
+                    send_email(sender_email, email, pet_name, meal)
                 return redirect("/")
             else:
                 return redirect("/")
