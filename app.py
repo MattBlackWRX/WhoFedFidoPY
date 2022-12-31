@@ -133,11 +133,12 @@ def logout():
 @login_required
 def addPet():
     if request.method == "POST":
-        if not request.form.get("pet"):
-            return apology("Must provide a Pet Name", 400)
-        pet = request.form.get("pet")
-        db.execute("INSERT INTO pets (petname, user_id) VALUES (?, ?)", pet, session["user_id"])
-        return redirect("/")
+        if not request.form.get("email"):
+            if not request.form.get("pet"):
+                return apology("Must provide a Pet Name", 400)
+            pet = request.form.get("pet")
+            db.execute("INSERT INTO pets (petname, user_id) VALUES (?, ?)", pet, session["user_id"])
+            return redirect("/")
     else:
         return render_template("addpet.html")
 
