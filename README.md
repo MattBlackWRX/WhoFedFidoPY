@@ -1,5 +1,5 @@
 # Who Fed Fido
-#### Video Demo:  <URL HERE>
+#### Video Demo:  <URL https://youtu.be/oY5sv3vqO8k>
 #### Description:
 Who Fed Fido is a web app built with the flask framework using a Python back-end. Javascript with the jQuery library was used for the front-end along with some Jinja code as well. I also leveraged the bootstrap CSS framework for the front end as well. The data for the app, including the user information and pet information is stored in a sqlite database. This web app assists up to two users in tracking the feeding schedule of their pets. In order to keep the app concise I limited the number of owners of any one pet to two users and set the feeding schedule to breakfast lunch and dinner. With how the sqlite database is contructed, allowing an uncapped feeding schedule would add complexity and possibly too many columns. Two owners seemed sufficient for the scope of this project along with the assumption that most pets have up to two primary owners. The owners will be sent an email via a GMAIL API alerting them that their pet has been fed a meal (breakfast, lunch, or dinner).
 
