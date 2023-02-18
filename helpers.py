@@ -29,6 +29,7 @@ def login_required(f):
     return decorated_function
 
 # Function utilizing the gmail API to send automated emails from the Google GMAIL get started API page
+# Reminder to check this API for another solution
 def send_email(sender, recipient, pet, meal):
     """Create and send an email message
     Print the returned  message id
